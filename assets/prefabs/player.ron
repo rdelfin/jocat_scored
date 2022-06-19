@@ -1,0 +1,172 @@
+#![enable(implicit_some)]
+
+Prefab(
+    entities: [
+        // JoCat
+        PrefabEntity(
+            data: PlayerPrefab(
+                // SpriteScenePrefab
+                sprite_scene: (
+                    // SpriteSheetPrefab with index 0
+                    sheet: Sheet(
+                        // TexturePrefab
+                        texture: File("sprites/jocat.png", (
+                            "IMAGE", (
+                                sampler_info: (
+                                    min_filter: Nearest,
+                                    mag_filter: Nearest,
+                                    mip_filter: Nearest,
+                                    wrap_mode: (Tile, Tile, Tile),
+                                    lod_bias: (0),
+                                    lod_range: (
+                                        start: ( 0 ),
+                                        end: ( 8000 ),
+                                    ),
+                                    comparison: None,
+                                    border: (0),
+                                    normalized: true,
+                                    anisotropic: Off,
+                                ),
+                            ),
+                        )),
+                        sprites: [
+                            // Jocat sprites (idle)
+                            List((
+                                texture_width: 9600,
+                                texture_height: 4320,
+                                sprites: [
+                                    // Durations are at 120 BPM (game is closer to 123)
+                                    // 0-5: Idle
+                                    (x: 7680, y: 1080, width: 1920, height: 1080), // duration: 67
+                                    (x: 3840, y: 3240, width: 1920, height: 1080), // duration: 100
+                                    (x: 1920, y: 3240, width: 1920, height: 1080), // duration: 33
+                                    (x: 0,    y: 3240, width: 1920, height: 1080), // duration: 133
+                                    (x: 7680, y: 2160, width: 1920, height: 1080), // duration: 133
+                                    (x: 5760, y: 2160, width: 1920, height: 1080), // duration: 33
+
+                                    // 6-9: Attack Prepare
+                                    (x: 3840, y: 2160, width: 1920, height: 1080), // duration: 133
+                                    (x: 1920, y: 2160, width: 1920, height: 1080), // duration: 100
+                                    (x: 0,    y: 2160, width: 1920, height: 1080), // duration: 100
+                                    (x: 0,    y: 0,    width: 1920, height: 1080), // duration: 167
+
+                                    // 10-20: Attack
+                                    (x: 0,    y: 0,    width: 1920, height: 1080), // duration: 33
+                                    (x: 5760, y: 1080, width: 1920, height: 1080), // duration: 133
+                                    (x: 3840, y: 1080, width: 1920, height: 1080), // duration: 167
+                                    (x: 1920, y: 1080, width: 1920, height: 1080), // duration: 133
+                                    (x: 0,    y: 1080, width: 1920, height: 1080), // duration: 67
+                                    (x: 7680, y: 0,    width: 1920, height: 1080), // duration: 133
+                                    (x: 5760, y: 0,    width: 1920, height: 1080), // duration: 67
+                                    (x: 3840, y: 0,    width: 1920, height: 1080), // duration: 100
+                                    (x: 1920, y: 0,    width: 1920, height: 1080), // duration: 100
+                                    (x: 5760, y: 2160, width: 1920, height: 1080), // duration: 67
+                                    (x: 7680, y: 1080, width: 1920, height: 1080), // duration: 33
+                                ],
+                            )),
+                        ],
+                        name: "jocat_full",
+                    ),
+                    // SpriteRenderPrefab
+                    render: (
+                        sheet: "jocat_full",
+                        sprite_number: 0,
+                    ),
+                    // Transform
+                    transform: (
+                        translation: (0.0, 0.0, 0.5),
+                    ),
+                ),
+                // AnimationSetPrefab
+                animation_set: (
+                    animations: [
+                        (
+                            Idle,
+                            (
+                                samplers: [
+                                    (
+                                        0,
+                                        SpriteIndex,
+                                        (
+                                            // Frame seconds for 15 frames (~0.5s)
+                                            // 0.00, 0.03, 0.07, 0.10, 0.13,
+                                            // 0.16, 0.20, 0.23, 0.26, 0.30,
+                                            // 0.33, 0.36, 0.39, 0.43, 0.46, 0.491803275
+
+                                            // Time of key frames
+                                            input: [
+                                                0.00, 0.07, 0.16, 0.20, 0.33, 0.46, 0.491803275
+                                            ],
+                                            // Sprite indexes from SpriteSheet for key frames
+                                            output: [0, 1, 2, 3, 4, 5],
+                                            function: Step,
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        ),
+                        (
+                            AttackPrepare,
+                            (
+                                samplers: [
+                                    (
+                                        0,
+                                        SpriteIndex,
+                                        (
+                                            // Frame seconds for 15 frames (~0.5s)
+                                            // 0.00, 0.03, 0.07, 0.10, 0.13,
+                                            // 0.16, 0.20, 0.23, 0.26, 0.30,
+                                            // 0.33, 0.36, 0.39, 0.43, 0.46, 0.491803275
+
+                                            // Time of key frames
+                                            input: [
+                                                0.00, 0.13, 0.23, 0.33, 0.491803275
+                                            ],
+                                            // Sprite indexes from SpriteSheet for key frames
+                                            output: [6, 7, 8, 9, 9],
+                                            // Sprites can only ever be animated with Step
+                                            function: Step,
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        ),
+                        (
+                            Attack,
+                            (
+                                samplers: [
+                                    (
+                                        0,
+                                        SpriteIndex,
+                                        (
+                                            // Frame seconds for 30 frames (~1s)
+                                            // 0.00, 0.03, 0.07, 0.10, 0.13,
+                                            // 0.16, 0.20, 0.23, 0.26, 0.30,
+                                            // 0.33, 0.36, 0.39, 0.43, 0.46,
+                                            // 0.49, 0.52, 0.56, 0.59, 0.62,
+                                            // 0.66, 0.69, 0.72, 0.75, 0.79,
+                                            // 0.82, 0.85, 0.89, 0.92, 0.95, 0.98360655
+                                            input: [
+                                                0.00, 0.03, 0.16, 0.33, 0.46,
+                                                0.52, 0.66, 0.72, 0.82, 0.92, 0.98360655
+                                            ],
+                                            // Sprite indexes from SpriteSheet for key frames
+                                            output: [
+                                                10, 11, 12, 13, 14,
+                                                15, 16, 17, 18, 19, 20
+                                            ],
+                                            // Sprites can only ever be animated with Step
+                                            function: Step,
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        ),
+                    ],
+                ),
+                player: Player(dummy: false),
+            ),
+        ),
+    ],
+)
+

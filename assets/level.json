@@ -1,0 +1,11 @@
+{
+    "events": {
+        "6": [{ "ThrowStart": { "t": "Watermelon" } }],
+        "10": [{ "ThrowStart": { "t": "Wheat" } }],
+        "14": [{ "ThrowStart": { "t": "Log" } }],
+        "18": [{ "ThrowStart": { "t": "Watermelon" } }],
+        "22": [{ "ThrowStart": { "t": "Wheat" } }],
+        "26": [{ "ThrowStart": { "t": "Log" } }],
+        "30": [{ "ThrowStart": { "t": "Watermelon" } }]
+    }
+}
