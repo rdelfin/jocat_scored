@@ -11,6 +11,9 @@ enum AppState {
 
 struct MusicHandle(Option<Handle<AudioSource>>);
 
+#[derive(Component, Default, Debug, Clone)]
+struct LoadingScreen;
+
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::rgb(0.5, 0.5, 0.5)))
@@ -26,7 +29,7 @@ fn main() {
         .add_plugin(EguiPlugin)
         .add_plugin(AudioPlugin)
         .add_state(AppState::Loading)
-        .add_startup_system(load_all_assets)
+        .add_system_set(SystemSet::on_enter(AppState::Loading).with_system(load_all_assets))
         .add_system_set(SystemSet::on_update(AppState::Loading).with_system(check_loaded_system))
         .add_system_set(SystemSet::on_enter(AppState::Menu).with_system(start_menu))
         .add_system_set(SystemSet::on_enter(AppState::InGame).with_system(start_background_audio))
@@ -35,14 +38,27 @@ fn main() {
         .run();
 }
 
-fn load_all_assets(asset_server: Res<AssetServer>, mut music_handle: ResMut<MusicHandle>) {
-    music_handle.0 = Some(asset_server.load("sound/music.ogg"));
+fn load_all_assets(
+    mut commands: Commands,
+    server: Res<AssetServer>,
+    mut music_handle: ResMut<MusicHandle>,
+) {
+    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
+    commands
+        .spawn_bundle(SpriteBundle {
+            texture: server.load("sprites/loading.png"),
+            ..default()
+        })
+        .insert(LoadingScreen);
+    music_handle.0 = Some(server.load("sound/music.ogg"));
 }
 
 fn check_loaded_system(
+    mut commands: Commands,
     server: Res<AssetServer>,
     music_handle: Res<MusicHandle>,
     mut app_state: ResMut<State<AppState>>,
+    q: Query<Entity, With<LoadingScreen>>,
 ) {
     use bevy::asset::LoadState;
 
@@ -52,6 +68,9 @@ fn check_loaded_system(
                 // one of our assets had an error
             }
             LoadState::Loaded => {
+                for entity in q.iter() {
+                    commands.entity(entity).despawn();
+                }
                 app_state.set(AppState::Menu).unwrap();
             }
             _ => {
@@ -61,14 +80,8 @@ fn check_loaded_system(
     }
 }
 
-fn start_background_audio(
-    mut commands: Commands,
-    audio: Res<Audio>,
-    music_handle: Res<MusicHandle>,
-) {
-    let music_handle = music_handle.0.clone();
-    audio.play(music_handle.unwrap());
-    commands.remove_resource::<MusicHandle>();
+fn start_background_audio(server: Res<AssetServer>, audio: Res<Audio>) {
+    audio.play(server.load("sound/music.ogg"));
 }
 
 fn start_menu(mut egui_context: ResMut<EguiContext>) {
