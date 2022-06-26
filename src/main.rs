@@ -9,7 +9,7 @@ enum AppState {
     InGame,
 }
 
-struct MusicHandle(Option<Handle<AudioSource>>);
+struct AssetsLoading(Vec<HandleUntyped>);
 
 #[derive(Component, Default, Debug, Clone)]
 struct LoadingScreen;
@@ -19,12 +19,12 @@ fn main() {
         .insert_resource(ClearColor(Color::rgb(0.5, 0.5, 0.5)))
         .insert_resource(WindowDescriptor {
             title: "Swing".to_string(),
-            width: 1280.,
-            height: 800.,
+            width: 1920.,
+            height: 1080.,
             resizable: false,
             ..WindowDescriptor::default()
         })
-        .insert_resource(MusicHandle(None))
+        .insert_resource(AssetsLoading(vec![]))
         .add_plugins(DefaultPlugins)
         .add_plugin(EguiPlugin)
         .add_plugin(AudioPlugin)
@@ -32,7 +32,7 @@ fn main() {
         .add_system_set(SystemSet::on_enter(AppState::Loading).with_system(load_all_assets))
         .add_system_set(SystemSet::on_update(AppState::Loading).with_system(check_loaded_system))
         .add_system_set(SystemSet::on_enter(AppState::Menu).with_system(start_menu))
-        .add_system_set(SystemSet::on_enter(AppState::InGame).with_system(start_background_audio))
+        .add_system_set(SystemSet::on_enter(AppState::InGame).with_system(start_game))
         .add_system_set(SystemSet::on_update(AppState::Menu).with_system(menu_window_system))
         .add_system(exit_on_esc_system)
         .run();
@@ -41,7 +41,7 @@ fn main() {
 fn load_all_assets(
     mut commands: Commands,
     server: Res<AssetServer>,
-    mut music_handle: ResMut<MusicHandle>,
+    mut loading_assets: ResMut<AssetsLoading>,
 ) {
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
     commands
@@ -50,37 +50,47 @@ fn load_all_assets(
             ..default()
         })
         .insert(LoadingScreen);
-    music_handle.0 = Some(server.load("sound/music.ogg"));
+    loading_assets.0.push(
+        server
+            .load::<AudioSource, _>("sound/music.ogg")
+            .clone_untyped(),
+    );
+    loading_assets
+        .0
+        .push(server.load::<Image, _>("sprites/BG.png").clone_untyped());
 }
 
 fn check_loaded_system(
     mut commands: Commands,
     server: Res<AssetServer>,
-    music_handle: Res<MusicHandle>,
+    loading_assets: Res<AssetsLoading>,
     mut app_state: ResMut<State<AppState>>,
     q: Query<Entity, With<LoadingScreen>>,
 ) {
     use bevy::asset::LoadState;
 
-    if let Some(ref music_handle) = music_handle.0 {
-        match server.get_group_load_state(vec![music_handle.id]) {
-            LoadState::Failed => {
-                // one of our assets had an error
+    if loading_assets.0.len() > 0 {
+        let all_loaded = loading_assets.0.iter().all(|asset| {
+            match server.get_group_load_state(vec![asset.id]) {
+                LoadState::Loaded => true,
+                _ => false,
             }
-            LoadState::Loaded => {
-                for entity in q.iter() {
-                    commands.entity(entity).despawn();
-                }
-                app_state.set(AppState::Menu).unwrap();
+        });
+
+        if all_loaded {
+            for entity in q.iter() {
+                commands.entity(entity).despawn();
             }
-            _ => {
-                // NotLoaded/Loading: not fully ready yet
-            }
+            app_state.set(AppState::Menu).unwrap();
         }
     }
 }
 
-fn start_background_audio(server: Res<AssetServer>, audio: Res<Audio>) {
+fn start_game(mut commands: Commands, server: Res<AssetServer>, audio: Res<Audio>) {
+    commands.spawn_bundle(SpriteBundle {
+        texture: server.load("sprites/BG.png"),
+        ..SpriteBundle::default()
+    });
     audio.play(server.load("sound/music.ogg"));
 }
 
