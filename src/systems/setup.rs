@@ -76,17 +76,13 @@ pub fn start_game(
     commands
         .spawn_bundle(SpriteSheetBundle {
             texture_atlas: texture_atlas_handle,
-            sprite: TextureAtlasSprite {
-                index: 13,
-                ..default()
-            },
             ..default()
         })
         .insert(AnimatedSprite {
             // Timer is equivalent to 122 BPM
             timer: Timer::from_seconds(0.098360656, true),
-            start_idx: 13,
-            end_idx: 18,
+            frames: vec![13, 14, 15, 16, 17],
+            idx: 0,
         });
 }
 
