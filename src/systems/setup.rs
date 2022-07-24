@@ -1,5 +1,5 @@
 use crate::{
-    components::LoadingScreen,
+    components::{AnimatedSprite, LoadingScreen},
     resources::{AppState, AssetsLoading},
 };
 use bevy::prelude::*;
@@ -26,6 +26,9 @@ pub fn load_all_assets(
     loading_assets
         .0
         .push(server.load::<Image, _>("sprites/BG.png").clone_untyped());
+    loading_assets
+        .0
+        .push(server.load::<Image, _>("sprites/jocat.png").clone_untyped());
 }
 
 pub fn check_loaded_system(
@@ -54,12 +57,37 @@ pub fn check_loaded_system(
     }
 }
 
-pub fn start_game(mut commands: Commands, server: Res<AssetServer>, audio: Res<Audio>) {
+pub fn start_game(
+    mut commands: Commands,
+    server: Res<AssetServer>,
+    audio: Res<Audio>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+) {
     commands.spawn_bundle(SpriteBundle {
         texture: server.load("sprites/BG.png"),
         ..SpriteBundle::default()
     });
     audio.play(server.load("sound/music.ogg"));
+
+    let texture_handle = server.load("sprites/jocat.png");
+    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(1920., 1080.), 5, 4);
+    let texture_atlas_handle = texture_atlases.add(texture_atlas);
+
+    commands
+        .spawn_bundle(SpriteSheetBundle {
+            texture_atlas: texture_atlas_handle,
+            sprite: TextureAtlasSprite {
+                index: 13,
+                ..default()
+            },
+            ..default()
+        })
+        .insert(AnimatedSprite {
+            // Timer is equivalent to 122 BPM
+            timer: Timer::from_seconds(0.098360656, true),
+            start_idx: 13,
+            end_idx: 18,
+        });
 }
 
 pub fn start_menu(mut egui_context: ResMut<EguiContext>) {

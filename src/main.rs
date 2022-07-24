@@ -31,6 +31,9 @@ fn main() {
         .add_system_set(SystemSet::on_enter(AppState::Menu).with_system(systems::start_menu))
         .add_system_set(SystemSet::on_enter(AppState::InGame).with_system(systems::start_game))
         .add_system_set(
+            SystemSet::on_update(AppState::InGame).with_system(systems::animate_sprite_system),
+        )
+        .add_system_set(
             SystemSet::on_update(AppState::Menu).with_system(systems::menu_window_system),
         )
         .add_system(exit_on_esc_system)
