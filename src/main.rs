@@ -2,6 +2,8 @@ use bevy::{input::system::exit_on_esc_system, prelude::*};
 use bevy_egui::{egui, EguiContext, EguiPlugin};
 use bevy_kira_audio::{Audio, AudioPlugin, AudioSource};
 
+mod components;
+
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 enum AppState {
     Loading,
@@ -10,9 +12,6 @@ enum AppState {
 }
 
 struct AssetsLoading(Vec<HandleUntyped>);
-
-#[derive(Component, Default, Debug, Clone)]
-struct LoadingScreen;
 
 fn main() {
     App::new()
@@ -49,7 +48,7 @@ fn load_all_assets(
             texture: server.load("sprites/loading.png"),
             ..default()
         })
-        .insert(LoadingScreen);
+        .insert(components::LoadingScreen);
     loading_assets.0.push(
         server
             .load::<AudioSource, _>("sound/music.ogg")
@@ -65,7 +64,7 @@ fn check_loaded_system(
     server: Res<AssetServer>,
     loading_assets: Res<AssetsLoading>,
     mut app_state: ResMut<State<AppState>>,
-    q: Query<Entity, With<LoadingScreen>>,
+    q: Query<Entity, With<components::LoadingScreen>>,
 ) {
     use bevy::asset::LoadState;
 
