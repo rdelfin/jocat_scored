@@ -22,19 +22,24 @@ fn main() {
         .add_plugin(EguiPlugin)
         .add_plugin(AudioPlugin)
         .add_state(AppState::Loading)
+        // Loading systems
         .add_system_set(
             SystemSet::on_enter(AppState::Loading).with_system(systems::load_all_assets),
         )
         .add_system_set(
             SystemSet::on_update(AppState::Loading).with_system(systems::check_loaded_system),
         )
+        // Menu systems
         .add_system_set(SystemSet::on_enter(AppState::Menu).with_system(systems::start_menu))
-        .add_system_set(SystemSet::on_enter(AppState::InGame).with_system(systems::start_game))
-        .add_system_set(
-            SystemSet::on_update(AppState::InGame).with_system(systems::animate_sprite_system),
-        )
         .add_system_set(
             SystemSet::on_update(AppState::Menu).with_system(systems::menu_window_system),
+        )
+        // Game systems
+        .add_system_set(SystemSet::on_enter(AppState::InGame).with_system(systems::start_game))
+        .add_system_set(
+            SystemSet::on_update(AppState::InGame)
+                .with_system(systems::animate_sprite_system)
+                .with_system(systems::attack_system),
         )
         .add_system(exit_on_esc_system)
         .run();

@@ -9,3 +9,6 @@ pub struct AnimatedSprite {
     pub frames: Vec<usize>,
     pub idx: usize,
 }
+
+#[derive(Component, Default, Debug, Clone)]
+pub struct Player;

@@ -1,5 +1,5 @@
 use crate::{
-    components::{AnimatedSprite, LoadingScreen},
+    components::{AnimatedSprite, LoadingScreen, Player},
     resources::{AppState, AssetsLoading},
 };
 use bevy::prelude::*;
@@ -83,7 +83,8 @@ pub fn start_game(
             timer: Timer::from_seconds(0.098360656, true),
             frames: vec![13, 14, 15, 16, 17],
             idx: 0,
-        });
+        })
+        .insert(Player);
 }
 
 pub fn start_menu(mut egui_context: ResMut<EguiContext>) {
