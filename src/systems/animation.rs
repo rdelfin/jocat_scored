@@ -3,7 +3,7 @@ use bevy::prelude::*;
 
 pub fn animate_sprite_system(
     time: Res<Time>,
-    mut query: Query<(&mut AnimatedSprite, &mut TextureAtlasSprite)>,
+    mut query: Query<(&mut AnimatedSprite, &mut TextureAtlas)>,
 ) {
     for (mut animated_sprite, mut sprite) in query.iter_mut() {
         animated_sprite.timer.tick(time.delta());

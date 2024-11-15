@@ -1,10 +1,11 @@
 use bevy::prelude::*;
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(States, Debug, Clone, PartialEq, Eq, Hash)]
 pub enum AppState {
     Loading,
     Menu,
     InGame,
 }
 
-pub struct AssetsLoading(pub Vec<HandleUntyped>);
+#[derive(Resource)]
+pub struct AssetsLoading(pub Vec<UntypedHandle>);

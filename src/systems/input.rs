@@ -2,8 +2,8 @@ use crate::components::{AnimatedSprite, Player};
 use bevy::prelude::*;
 
 pub fn attack_system(
-    input: Res<Input<KeyCode>>,
-    mut q: Query<(&mut AnimatedSprite, &mut TextureAtlasSprite), With<Player>>,
+    input: Res<ButtonInput<KeyCode>>,
+    mut q: Query<(&mut AnimatedSprite, &mut TextureAtlas), With<Player>>,
 ) {
     if input.pressed(KeyCode::Space) {
         for (mut animated_sprite, mut texture_atlas_sprite) in q.iter_mut() {
