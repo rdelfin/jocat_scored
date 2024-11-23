@@ -22,6 +22,7 @@ fn main() {
             }),
             EguiPlugin,
             AudioPlugin,
+            bevy_framepace::FramepacePlugin,
         ))
         .insert_resource(ClearColor(Color::srgb(0.5, 0.5, 0.5)))
         .insert_resource(AssetsLoading(vec![]))
